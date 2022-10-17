@@ -9,6 +9,7 @@ let MENU = 1
 let GAME = 2;
 let GAMEOVER = 3;
 let WIN = 4;
+let GAME_LEVEL2 = 5;
 // Game Variables :     
 let timeForLoading = 6000;
 let canvas;
@@ -92,6 +93,7 @@ function draw(){
             }
             textSize(30);
             fill(255)
+            drawingContext.shadowBlur = 0;
             text("Monster's lives :",950,50);
             text(monsterlives,1100,50);
             showRicochets = true;
@@ -164,9 +166,10 @@ function draw(){
             projectiles3[i].shoot()
         }
     }
+    // Going to the next level here : 
     if(monsterlives <= 0){
         enemies3.splice(0,1)
-        currentScene = WIN;
+        currentScene = GAME_LEVEL2;
     }
     }
     if(currentScene == GAMEOVER){
@@ -488,7 +491,7 @@ class Enemy2{
     }
     attack(){
         fill('red');    
-        drawingContext.shadowBlur = 32;
+        drawingContext.shadowBlur = 15;
         drawingContext.shadowColor = color("red")
         rect(this.x,this.y,this.width,this.height);
         if(this.x + this.width > innerWidth || this.x - this.width < 0){
@@ -508,6 +511,7 @@ class Enemy3{
         this.dy = dy;
     }
     follow(){
+        drawingContext.shadowBlur = 0;
         fill("blue");
         rect(this.x,this.y,this.width,this.height);
         this.y += this.dy;
@@ -916,3 +920,9 @@ setInterval(()=>{
         ricochets.push(new Ricochet(enemy3.x,enemy3.y,20,20,-10,0.01))
     }
 },3000)
+function Level2(){
+    // Let's make level 2 right here :
+    textAlign(CENTER);
+    textSize(35); 
+    text("Level 2",width/2,heigh/2);
+}
