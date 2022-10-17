@@ -313,6 +313,8 @@ function ShowWinScene(){
 let lives = 3;
 let score = 0;
 function DisplayScoreandLives(){
+    drawingContext.shadowBlur = 0;
+    drawingContext.shadowColor = color(255,255,255)
     fill('rgba(255,255,255, 1)')
     textSize(30);
     text("Lives :",150,50)
@@ -394,6 +396,7 @@ class Player{
         this.dy = dy;
     }
     spawn(){
+        text("Player",this.x + 10,this.y - 15)
         fill(255,255,255)
         rect(this.x,this.y,this.width,this.height)
         if(this.y < 0){
@@ -462,10 +465,11 @@ class Enemy{
     attack(){
         // fill('red');
         noFill();
-        stroke(`rgba(120,200,160,${alpha})`);
-        alpha = sin(incrementinalpha) + 0.1;
+        stroke(150);
+        // stroke(`rgba(120,200,160,${alpha})`);
+        // alpha = sin(incrementinalpha) + 0.1;
         // console.log(alpha + 0.1)
-        incrementinalpha++
+        // incrementinalpha++
         drawingContext.shadowBlur = 32;
         rect(this.x,this.y,this.width,this.height);
         this.x += this.dx;
