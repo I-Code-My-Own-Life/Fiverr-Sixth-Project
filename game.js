@@ -11,7 +11,7 @@ let GAMEOVER = 3;
 let WIN = 4;
 let GAME_LEVEL2 = 5;
 // Game Variables :     
-let timeForLoading = 6000;
+let timeForLoading = 1000;
 let canvas;
 let keys = {
     arrowLeft: {
@@ -36,6 +36,8 @@ let keys = {
 let enemies = [];
 let enemies2 = [];
 let enemies3 = [];
+let enemies4 = [];
+let projectileBalls = [];
 let particles = [];
 let projectiles = [];
 let projectiles2 = [];
@@ -94,7 +96,8 @@ function draw(){
             textSize(30);
             fill(255)
             drawingContext.shadowBlur = 0;
-            text("Monster's lives :",950,50);
+            text("Monster's lives :",900,50);
+            fill("red");
             text(monsterlives,1100,50);
             showRicochets = true;
         }
@@ -169,6 +172,7 @@ function draw(){
     // Going to the next level here : 
     if(monsterlives <= 0){
         enemies3.splice(0,1)
+        level++;
         currentScene = GAME_LEVEL2;
     }
     }
@@ -177,6 +181,9 @@ function draw(){
     }
     if(currentScene == WIN){
         ShowWinScene()
+    }
+    if(currentScene == GAME_LEVEL2){
+        Level2();   
     }
 }
 // Some Utility Functions : 
@@ -226,14 +233,14 @@ function loadingScene(){
   }
 }
 // Our Menu Scene is here : 
-let colorofText = 400;
-let colorofText2 = 550;
-let colorofText3 = 400;
-let colorofText4 = 400;
-// let colorofText = 10;
-// let colorofText2 = 10;
-// let colorofText3 = 10;
-// let colorofText4 = 10;
+// let colorofText = 400;
+// let colorofText2 = 550;
+// let colorofText3 = 400;
+// let colorofText4 = 400;
+let colorofText = 10;
+let colorofText2 = 10;
+let colorofText3 = 10;
+let colorofText4 = 10;
 let showButton = false;
 function menuScene(){
     textSize(40);
@@ -315,18 +322,29 @@ function ShowWinScene(){
 // Some variables related to this function are here :
 let lives = 3;
 let score = 0;
+let level = 1;
 function DisplayScoreandLives(){
     drawingContext.shadowBlur = 0;
     drawingContext.shadowColor = color(255,255,255)
     fill('rgba(255,255,255, 1)')
     textSize(30);
-    text("Lives :",150,50)
+    text("Lives :",80,50)
     textSize(30);
-    text(lives,250,50);
+    fill("red")
+    text(lives,180,50);
+    // Displaying our level here : 
+    fill('rgba(255,255,255, 1)')
+    textSize(30);
+    text("Level :",350,50)
+    fill("red")
+    textSize(30);
+    text(level,440,50);
     // Displaying our score here : 
-    text("Score :",width/2,50);
+    fill('rgba(255,255,255, 1)')
+    text("Score :",width/2 + 40,50);
     textAlign(CENTER);
-    text(score,width/2 + 100,50);
+    fill("red")
+    text(score,width/2 + 150,50);
 }
 
 // All of our classes are going to be here : 
@@ -399,6 +417,9 @@ class Player{
         this.dy = dy;
     }
     spawn(){
+        drawingContext.shadowBlur = 0;
+        textSize(30)
+        fill(215,100,0)
         text("Player",this.x + 10,this.y - 15)
         fill(255,255,255)
         rect(this.x,this.y,this.width,this.height)
@@ -414,24 +435,11 @@ class Player{
         this.x += this.dx;
         if(this.y + this.height + this.dy <= innerHeight){
             this.dy += GRAVITY;
-            hit = true;
+            // hit = true;
         }
         else{
-            if(inc <= 0){
-                hit = true;
-            }
-            inc++;
-            if(hit){
-                for(let i = 0; i < particleCount; i++){
-                    let dx = randomIntFromInterval(-25, 25);
-                    let dy = randomIntFromInterval(-20, 20);
-                    particles.push(new Particle(this.x + (this.width / 2),this.y + this.height,8,dx,dy,"brown"));
-                }
-                hit = false;
-            }
             this.dy = 0;
         }
-        // console.log(this.y < 0)
 
     }
 }
@@ -631,8 +639,13 @@ function KeyboardInputHandler(){
                     keys.arrowLeft.pressed = true;
                     break;
                 case " ":
-                    fire = true;
-                    projectiles.push(new Projectile(player.x + player.width ,player.y + (player.height / 2) - 25,20,20,18,18,1));
+                    if(currentScene == GAME){
+                        fire = true;
+                        projectiles.push(new Projectile(player.x + player.width ,player.y + (player.height / 2) - 25,20,20,18,18,1));
+                    }
+                    if(currentScene == GAME_LEVEL2){
+                        projectileBalls.push(new ProjectileBall(player.x + player.width,player.y + (player.height / 2) - 25,12,18,18))
+                    }
                     break;
                 case "a":
                     projectiles2.push(new Projectile2(player.x + (player.width / 2),player.y,20,20,true,-18,-18))
@@ -899,6 +912,7 @@ setInterval(()=>{
 setTimeout(()=>{
     currentScene = MENU
 },timeForLoading)
+
 setInterval(()=>{
     if(currentScene == GAME && !destroyed){
         projectiles3.push(new Projectile3(enemy2.x + (enemy2.width / 2),enemy2.y + enemy2.height,10,10,false,18,18));
@@ -913,16 +927,216 @@ setInterval(()=>{
         spawnBigEnemy = true;   
         dothis = false;
     }
-},40000)
+},10000)
 setInterval(()=>{
     if(showRicochets){
-        console.log(ricochets)
         ricochets.push(new Ricochet(enemy3.x,enemy3.y,20,20,-10,0.01))
     }
 },3000)
+// Everything for level 2 will be here : 
+// Variables : 
+const Ghost_Speed = 4;
+// Functions and classes for level 2 are here : 
+// All the enemeis for level 2 : 
+// Programming the enemy class here : 
+// This is the enemy class that follows the player around everywhere :
+class Enemy4{
+    constructor(x,y,width,height,dx,dy){
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.dx = dx;
+        this.dy = dy;
+    }
+    attack(){
+        fill("red")
+        textAlign(CENTER)
+        textSize(20);
+        drawingContext.shadowBlur = 0;
+        text("Ghost",this.x + 15,this.y - 10)
+        fill("green");
+        rect(this.x,this.y,this.width,this.height);
+        this.x += this.dx;
+        this.y += this.dy;
+        if(this.y + this.height + this.dy <= innerHeight){
+            this.dy += GRAVITY;
+        }
+        else{
+            this.dy = 0;
+        }
+    }
+}
+class Bomb{
+    constructor(x,y,radius,dx,dy){
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+        this.dx = dx;
+        this.dy = dy;
+    }
+    explode(){
+        fill("grey");
+        drawingContext.shadowBlur = 0;
+        circle(this.x,this.y,this.radius * 2)
+        this.y += this.dy;
+        if(this.y + this.radius + this.dy <= innerHeight){
+            this.dy += 0.7;
+        }
+        else{
+            this.dy = 0;
+        }
+    }
+}
+class ProjectileBall{
+    constructor(x,y,radius,dx,dy){
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+        this.dx = dx;
+        this.dy = dy;
+    }
+    shoot(){
+        drawingContext.shadowBlur = 0;
+        fill("red");
+        circle(this.x,this.y,this.radius * 2);
+        this.x += this.dx;
+    }
+}
+function CollisionDetectionforLevel2(){
+      // This is platform collision detection : 
+    // Platoform collision detection : 
+    for(let i = 0; i < tiles.length; i++){
+        if(player.y + player.height <= tiles[i].y && player.y + player.height + player.dy >= tiles[i].y && player.x + player.width >= tiles[i].x && player.x <= tiles[i].x + tiles[i].width){
+            if(r <= 0){
+                for(let j = 0; j < particleCount; j++){
+                    // console.log("Added Particles into the particles array!")
+                    let dx = randomIntFromInterval(-25, 25);
+                    let dy = randomIntFromInterval(-20, 20);
+                    particles.push(new Particle(player.x + (player.width / 2),player.y + player.height,8,dx,dy,"red"));
+                }
+                r++;
+            }
+            player.dy = 0;
+        }
+    }
+    // Collision Detection for enemy4 and our player :
+    for(let i = 0 ; i < enemies4.length; i++){
+        if(dist(enemies4[i].x,enemies4[i].y,player.x,player.y) < 50){
+            lives--;
+            for(let i = 0; i < 3; i++){
+                if(enemies4[i] != undefined){
+                    let dx = randomIntFromInterval(-25, 25);
+                    let dy = randomIntFromInterval(-20, 20);
+                    player.x -= 100
+                    particles.push(new Particle(enemies4[i].x,enemies4[i].y,8,dx,dy,"red"));
+                }
+            }
+            enemies4.splice(i,1);
+        }
+    } 
+    // Collision Detection for enemy4 and our player's fire : 
+    // So, I have a ball which is our projectile and I want to detect collision detection for this : 
+    for(let i = 0; i < enemies4.length; i++){
+        for(let j = 0; j < projectileBalls.length; j++){
+            if(CollisionDetectionofSquareAndCircle(projectileBalls[j].x,projectileBalls[j].y, projectileBalls[j].radius,enemies4[i].x,enemies4[i].y,enemies4[i].width,enemies4[i].height)){
+                score++;
+                for(let k = 0; k < 4; k++){
+                    let dx = randomIntFromInterval(-25, 25);
+                    let dy = randomIntFromInterval(-20, 20);
+                    let radius = 5;
+                    particles.push(new Particle(enemies4[i].x,enemies4[i].y,radius,dx,dy,"red"))
+                }
+                enemies4.splice(i,1);
+                projectileBalls.splice(j,1);
+            }
+        }
+    }
+}
+function CollisionDetectionofSquareAndCircle(cx, cy, rad, rx, ry, rw, rh){
+    let testX = cx;
+    let testY = cy;
+    if (cx < rx)         testX = rx;      // test left edge
+    else if (cx > rx+rw) testX = rx+rw;   // right edge
+    if (cy < ry)         testY = ry;      // top edge
+    else if (cy > ry+rh) testY = ry+rh;   // bottom edge
+    let d = dist(cx, cy, testX, testY);
+    if (d <= rad) {
+    return true;
+    }
+    return false;
+}
+// Defining all of our level2 class instances here : 
+let bomb = new Bomb(640,100,10,10,3);
+// The concept for level 2 of the game is here:
+// So, in this level our player     
 function Level2(){
     // Let's make level 2 right here :
     textAlign(CENTER);
     textSize(35); 
-    text("Level 2",width/2,heigh/2);
+    // fill("red")
+    // text("Level 2",width/2,height/2);
+    player.spawn();
+    // bomb.explode();
+    for(let i = 0; i < enemies4.length; i++){
+        enemies4[i].attack();
+        let angle = atan2(player.y - enemies4[i].y, player.x - enemies4[i].x);
+        let dx = Math.cos(angle) * Ghost_Speed;
+        let dy = Math.sin(angle) * Ghost_Speed;
+        enemies4[i].dx = dx;
+        enemies4[i].dy = dy;
+    }
+    DisplayScoreandLives();
+
+    // When lives get less than zero then go to the gameover scene : 
+    if(lives <= 0){
+        currentScene = GAMEOVER;
+        console.log("Go to game over scene!")
+        setTimeout(()=>{
+            if(lives == 0){
+                location.reload()
+            }
+        },3000)
+    }
+    // Making tiles : 
+    for(let i = 0; i < tiles.length; i++){
+        tiles[i].dx = 0;
+        tiles[i].drawTile();
+    }
+    if (keys.arrowRight.pressed) {  
+        player.dx = SPEED;
+    }
+    else if (keys.arrowLeft.pressed) {
+        player.dx = -SPEED;
+    }
+    else{
+        player.dx = 0;
+    }
+    CollisionDetectionforLevel2()
+    for(let i = 0; i < particles.length; i++){
+        particles[i].spawnParticles();
+    }
+    // Shooting ball projectiles : 
+    for(let i = 0; i < projectileBalls.length; i++){
+        if(projectileBalls[i].x > innerWidth || projectileBalls[i].x < 0){
+            projectileBalls.splice(i,1);
+        }
+        if(projectileBalls[i] != undefined){
+            projectileBalls[i].shoot();
+        }
+    }
+    // Going to the next level here : 
+    // if(monsterlives <= 0){
+    //     enemies3.splice(0,1)
+    //     currentScene = GAME_LEVEL2;
+    // }
+    // The main logic comes here :
 }
+setInterval(()=>{
+    let enemy4x = 1000;
+    let enemy4y = 100;
+    let angle = atan2(player.y - enemy4y, player.x - enemy4x);
+    let dx = Math.cos(angle) * Ghost_Speed;
+    let dy = Math.sin(angle) * Ghost_Speed;
+    enemies4.push(new Enemy4(1000,100,40,40,dx,dy));
+},10000)
