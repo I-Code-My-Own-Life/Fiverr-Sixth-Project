@@ -10,8 +10,10 @@ let GAME = 2;
 let GAMEOVER = 3;
 let WIN = 4;
 let GAME_LEVEL2 = 5;
+let INSTRUCTIONS = 6;
+let GAME_LEVEL3 = 7;
 // Game Variables :     
-let timeForLoading = 1000;
+let timeForLoading = 6000;
 let canvas;
 let keys = {
     arrowLeft: {
@@ -37,6 +39,8 @@ let enemies = [];
 let enemies2 = [];
 let enemies3 = [];
 let enemies4 = [];
+let livesArr = [];
+let bombs = [];
 let projectileBalls = [];
 let particles = [];
 let projectiles = [];
@@ -57,6 +61,7 @@ let font3;
 let font4;
 let font5;
 let font6;
+let kj = 0;
 function preload(){
     // Loading some fonts for our game : 
     font1 = loadFont("Fonts/font1.ttf");
@@ -173,7 +178,13 @@ function draw(){
     if(monsterlives <= 0){
         enemies3.splice(0,1)
         level++;
-        currentScene = GAME_LEVEL2;
+        currentScene = WIN;
+        if(kj <= 0){
+            setTimeout(()=>{
+                currentScene = GAME_LEVEL2;
+            },2000)
+        }
+        kj++;
     }
     }
     if(currentScene == GAMEOVER){
@@ -185,10 +196,21 @@ function draw(){
     if(currentScene == GAME_LEVEL2){
         Level2();   
     }
+    if(currentScene == INSTRUCTIONS){
+        InstructionsMenu();
+    }
+    if(currentScene == GAME_LEVEL3){
+        Level3();
+    }
 }
 // Some Utility Functions : 
 function randomIntFromInterval(min, max) { // min and max included 
     return Math.floor(Math.random() * (max - min + 1) + min)
+}
+function Level3(){
+    textSize(35);
+    textAlign(CENTER);
+    text("Level 3 here",width/2,height/2)
 }
 // Variables related to our loading scene are here :
 let sizeofcircle = 5; 
@@ -233,15 +255,17 @@ function loadingScene(){
   }
 }
 // Our Menu Scene is here : 
-// let colorofText = 400;
-// let colorofText2 = 550;
-// let colorofText3 = 400;
-// let colorofText4 = 400;
-let colorofText = 10;
-let colorofText2 = 10;
-let colorofText3 = 10;
-let colorofText4 = 10;
+let colorofText = 250;
+let colorofText2 = 300;
+let colorofText3 = 250;
+let colorofText4 = 250;
+// let colorofText = 10;
+// let colorofText2 = 10;
+// let colorofText3 = 10;
+// let colorofText4 = 10;
 let showButton = false;
+let difficulty = "Normal"
+let click = 1;
 function menuScene(){
     textSize(40);
     fill(colorofText)
@@ -264,30 +288,102 @@ function menuScene(){
         textSize(40);
         fill(colorofText4)
         text("and A to fire above you !",550,100)
-        colorofText4-=2
+        colorofText4-=8
         showButton = true;
     }
     if(showButton){
-        textSize(30);
-        fill(0, 255, 170)
-        textAlign(CENTER);
-        text("Be Careful you only have three lives in this game !",width/2,height/2);
-
+        fill(255)
+        textSize(20)
+        text("Press to start the game",width/2 - 150,height - 130)
         let button = createButton('Start the Game');
-        button.position(width/2 - 50, height - 100);
+        button.position(width/2 - 220, height - 100);
         let col = color(252, 11, 3)
         button.style('background-color', col);
-        button.style('width',"150px")
+        button.style('width',"180px")
         button.style('height',"60px")
         button.style("cursor",'pointer')
+        button.style('font-size',"18px")
         button.style("border-radius",'10px')
+        fill(255)
+        textSize(20)
+        text("Select Difficulty",width/2 + 180,height - 130)
+        let button2 = createButton(difficulty);
+        button2.position(width/2 + 100, height - 100);
+        button2.style('background-color', color(127, 3, 252));
+        button2.style('width',"150px")
+        button2.style('height',"60px")
+        button2.style("cursor",'pointer')
+        button2.style('font-size',"20px")
+        button2.style("border-radius",'10px')
+        let button3 = createButton('Instructions');
+        button3.position(width/2 - 60, height - 420);
+        let col3 = color(202, 100, 50)
+        button3.style('background-color', col3);
+        button3.style('width',"180px")
+        button3.style('height',"60px")
+        button3.style("cursor",'pointer')
+        button3.style('font-size',"18px")
+        button3.style("border-radius",'10px')
         button.mousePressed(()=>{
             removeElements()
             currentScene = GAME
+        })
+        button2.mousePressed(()=>{
+            click++;
+            if(click % 2 == 0){
+                difficulty = "Hard"
+            }
+            else{
+                difficulty = "Normal"
+            } 
         });
-
+        button3.mousePressed(()=>{
+            removeElements()
+            currentScene = INSTRUCTIONS
+        })
+        // Showing Instructions : 
+        textSize(40);
+        textAlign(CENTER);
+        fill("red")
+        text("The Last Hunter",width/2,height/2 - 200)
     }
-    console.log(showButton)
+}
+// Our Instructions screen is here : 
+function InstructionsMenu(){
+    textSize(30)
+    fill("red")
+    text("Use Arrow Keys to move!",600,100);
+    fill(5, 223, 247)
+    text("Press a and space to shoot Fireballs and Up Arrow key to jump!",600,200)
+    fill(5, 247, 29)
+    text("Keep your eyes open. An extra life may drop from the sky !",600,300)
+    fill("white")
+    textSize(40);
+    text("Level 1 ",200,420)
+    textSize(17);
+    text("Be aware of the titan that lies there! ",220,520)
+    textSize(40);
+    text("Level 2 ",600,420)
+    textSize(17)
+    text("The phantoms there are really powerful! ",620,520)
+    textSize(40);
+    text("Level 3 ",1000,420)
+    textSize(18);
+    text("Incompleted",1000,520)
+    // The button that teleports us to the game : 
+    let button = createButton("Let's Go!");
+    button.position(width/2 - 60, height - 100);
+    let col = color(252, 11, 3)
+    button.style('background-color', col);
+    button.style('width',"180px")
+    button.style('height',"60px")
+    button.style("cursor",'pointer')
+    button.style('font-size',"18px")
+    button.style("border-radius",'10px')
+    button.mousePressed(()=>{
+        removeElements()
+        currentScene = GAME
+    })
 }
 // Some variables related to our gameOver scene are here : 
 let textsize = 0;
@@ -317,7 +413,7 @@ function ShowWinScene(){
     textSize(50);
     textAlign(CENTER)
     textFont(font3)
-    text("Level 2 will be here",width/2,height/2)
+    text("You have successfully passed the stage!",width/2,height/2)
 }
 // Some variables related to this function are here :
 let lives = 3;
@@ -444,21 +540,29 @@ class Player{
     }
 }
 function makeExplosion(x,y){
-    // console.log("Running the function")
     fill(110)
     circle(x,y,diameter)
     if(diameter != 0 && diameter < 110){
-        // console.log("Is this if statement running?")
         diameter +=5;
     }
     if(diameter > 110){
-        // console.log('This if statement is runnning!')
         for(let i = 0; i < 20; i++){
             let dx = randomIntFromInterval(-25, 25);
             let dy = randomIntFromInterval(-20, 20);
             particles.push(new Particle(x,y,8,dx,dy,"red"))
         }
         diameter = 1;
+    }
+}
+let diam = 8
+function makeExplosionWithoutParticles(x,y){
+    fill(150)
+    circle(x,y,diam)
+    if(diam != 0 && diam < 110){
+        diam +=5;
+    }
+    if(diam > 110){
+        diam = 1;
     }
 }
 let alpha = 0.1;
@@ -475,6 +579,11 @@ class Enemy{
     }
     attack(){
         // fill('red');
+        drawingContext.shadowBlur = 0;
+        fill(43, 155, 252)
+        textSize(25)
+        textAlign(CENTER)
+        text("Spirit",this.x + 25,this.y - 10);
         noFill();
         stroke(150);
         // stroke(`rgba(120,200,160,${alpha})`);
@@ -497,7 +606,12 @@ class Enemy2{
         this.dy = dy;
         this.hit = hit;
     }
-    attack(){
+    attack(){ 
+        drawingContext.shadowBlur = 0;
+        fill(104, 2, 237)
+        textSize(20)
+        textAlign(CENTER)
+        text("Phantom",this.x + 20,this.y - 15);
         fill('red');    
         drawingContext.shadowBlur = 15;
         drawingContext.shadowColor = color("red")
@@ -520,6 +634,10 @@ class Enemy3{
     }
     follow(){
         drawingContext.shadowBlur = 0;
+        fill(20, 145, 68)
+        textSize(31)
+        textAlign(CENTER)
+        text("Titan",this.x + 35,this.y - 15);
         fill("blue");
         rect(this.x,this.y,this.width,this.height);
         this.y += this.dy;
@@ -644,12 +762,17 @@ function KeyboardInputHandler(){
                         projectiles.push(new Projectile(player.x + player.width ,player.y + (player.height / 2) - 25,20,20,18,18,1));
                     }
                     if(currentScene == GAME_LEVEL2){
-                        projectileBalls.push(new ProjectileBall(player.x + player.width,player.y + (player.height / 2) - 25,12,18,18))
+                        projectileBalls.push(new ProjectileBall(player.x + player.width,player.y + (player.height / 2) - 25,12,18,0))
                     }
                     break;
                 case "a":
-                    projectiles2.push(new Projectile2(player.x + (player.width / 2),player.y,20,20,true,-18,-18))
-                    break;
+                    if(currentScene == GAME){
+                        projectiles2.push(new Projectile2(player.x + (player.width / 2),player.y,20,20,true,0,-18))
+                    }
+                    if(currentScene == GAME_LEVEL2){
+                        projectileBalls.push(new ProjectileBall(player.x + (player.width/ 2), player.y,12,0,-18))
+                    }
+                        break;
                 case "ArrowUp":
                     if(player.y > 0){
                         player.dy -= JUMP_SPEED;
@@ -733,28 +856,28 @@ function CollisionDetection(){
         for(let j = 0; j < enemies.length; j++){
             if(projectiles[i] != undefined && enemies[j] != undefined){
             if(projectiles[i].x < enemies[j].x + enemies[j].width && projectiles[i].x + projectiles[i].width > enemies[j].x && projectiles[i].y < enemies[j].y + enemies[j].height && projectiles[i].y + projectiles[i].height > enemies[j].y){
-                makeExplosion(enemies[j].x,enemies[j].y);
+                makeExplosionWithoutParticles(enemies[j].x,enemies[j].y);
                 score++;
-                for(let i = 0; i < 7; i++){
-                    let dx = randomIntFromInterval(-25, 25);
-                    let dy = randomIntFromInterval(-20, 20);
+                for(let i = 0; i < 12; i++){
+                    // let dx = randomIntFromInterval(-25, 25);
+                    // let dy = randomIntFromInterval(-20, 20);
                     enemies[j].dx = 0;
-                    particles.push(new Particle(enemies[j].x,enemies[j].y,8,dx,dy,"red"));
-                    makeExplosion(enemies[j].x,enemies[j].y);
+                    // particles.push(new Particle(enemies[j].x,enemies[j].y,8,dx,dy,"red"));
+                    makeExplosionWithoutParticles(enemies[j].x,enemies[j].y);
                 }
                 projectiles.splice(i,1);
                 enemies.splice(j,1);
                 // console.log("Destroyed the enemy by using the default method");
             }
             else if(dist(projectiles[i].x, projectiles[i].y, enemies[j].x, enemies[j].y) < 80){
-                makeExplosion(enemies[j].x,enemies[j].y)
+                makeExplosionWithoutParticles(enemies[j].x,enemies[j].y)
                 score++;
-                for(let i = 0; i < 7; i++){
-                    let dx = randomIntFromInterval(-25, 25);
-                    let dy = randomIntFromInterval(-20, 20);
+                for(let i = 0; i < 12; i++){
+                    // let dx = randomIntFromInterval(-25, 25);
+                    // let dy = randomIntFromInterval(-20, 20);
                     enemies[j].dx = 0;
-                    particles.push(new Particle(enemies[j].x,enemies[j].y,8,dx,dy,"red"));
-                    makeExplosion(enemies[j].x,enemies[j].y);
+                    // particles.push(new Particle(enemies[j].x,enemies[j].y,8,dx,dy,"red"));
+                    makeExplosionWithoutParticles(enemies[j].x,enemies[j].y);
                 }
                 projectiles.splice(i,1);
                 enemies.splice(j,1);
@@ -920,6 +1043,7 @@ setInterval(()=>{
 },2000)
 let dothis = true;
 let enemy3;
+// Big enemy spawning is here :
 setInterval(()=>{
     if(currentScene == GAME && dothis){
         enemy3 = new Enemy3(innerWidth - 120,-90,70,120,4,0.1);
@@ -927,7 +1051,7 @@ setInterval(()=>{
         spawnBigEnemy = true;   
         dothis = false;
     }
-},10000)
+},30000)
 setInterval(()=>{
     if(showRicochets){
         ricochets.push(new Ricochet(enemy3.x,enemy3.y,20,20,-10,0.01))
@@ -935,7 +1059,7 @@ setInterval(()=>{
 },3000)
 // Everything for level 2 will be here : 
 // Variables : 
-const Ghost_Speed = 4;
+let Ghost_Speed = 3;
 // Functions and classes for level 2 are here : 
 // All the enemeis for level 2 : 
 // Programming the enemy class here : 
@@ -976,12 +1100,47 @@ class Bomb{
         this.dy = dy;
     }
     explode(){
+        textSize(25);
+        textAlign(CENTER);
+        fill("red")
+        text("Bomb!!",this.x,this.y - 15)
         fill("grey");
         drawingContext.shadowBlur = 0;
         circle(this.x,this.y,this.radius * 2)
         this.y += this.dy;
         if(this.y + this.radius + this.dy <= innerHeight){
-            this.dy += 0.7;
+            this.dy += 0.4;
+        }
+        else{
+            this.dy = 0;
+        }
+    }
+}
+let ang = 0;
+class Life{
+    constructor(x,y,dx,dy,radius){
+        this.x = x;
+        this.y = y;
+        this.dx = dx;
+        this.dy = dy;
+        this.radius = radius;
+    }
+    bless(){
+        ang+=0.03;
+        push();
+        drawingContext.shadowBlur = 20;
+        fill(255, 247, 0);
+        translate(this.x,this.y)
+        rotate(ang)
+        circle(0,0,this.radius * 2);
+        textSize(20);
+        fill("black");
+        text("L",0,5);
+        this.x += this.dx;
+        this.y += this.dy;
+        pop();
+        if(this.y + this.radius + this.dy <= innerHeight){
+            this.dy += GRAVITY;
         }
         else{
             this.dy = 0;
@@ -1001,6 +1160,7 @@ class ProjectileBall{
         fill("red");
         circle(this.x,this.y,this.radius * 2);
         this.x += this.dx;
+        this.y += this.dy;
     }
 }
 function CollisionDetectionforLevel2(){
@@ -1008,15 +1168,7 @@ function CollisionDetectionforLevel2(){
     // Platoform collision detection : 
     for(let i = 0; i < tiles.length; i++){
         if(player.y + player.height <= tiles[i].y && player.y + player.height + player.dy >= tiles[i].y && player.x + player.width >= tiles[i].x && player.x <= tiles[i].x + tiles[i].width){
-            if(r <= 0){
-                for(let j = 0; j < particleCount; j++){
-                    // console.log("Added Particles into the particles array!")
-                    let dx = randomIntFromInterval(-25, 25);
-                    let dy = randomIntFromInterval(-20, 20);
-                    particles.push(new Particle(player.x + (player.width / 2),player.y + player.height,8,dx,dy,"red"));
-                }
-                r++;
-            }
+            tiles[i].dx = 0;
             player.dy = 0;
         }
     }
@@ -1039,20 +1191,44 @@ function CollisionDetectionforLevel2(){
     // So, I have a ball which is our projectile and I want to detect collision detection for this : 
     for(let i = 0; i < enemies4.length; i++){
         for(let j = 0; j < projectileBalls.length; j++){
-            if(CollisionDetectionofSquareAndCircle(projectileBalls[j].x,projectileBalls[j].y, projectileBalls[j].radius,enemies4[i].x,enemies4[i].y,enemies4[i].width,enemies4[i].height)){
-                score++;
-                for(let k = 0; k < 4; k++){
-                    let dx = randomIntFromInterval(-25, 25);
-                    let dy = randomIntFromInterval(-20, 20);
-                    let radius = 5;
-                    particles.push(new Particle(enemies4[i].x,enemies4[i].y,radius,dx,dy,"red"))
+            if(projectileBalls[j] != undefined && enemies4[i] != undefined){
+                if(CollisionDetectionofSquareAndCircle(projectileBalls[j].x,projectileBalls[j].y, projectileBalls[j].radius,enemies4[i].x,enemies4[i].y,enemies4[i].width,enemies4[i].height)){
+                    score++;
+                    for(let k = 0; k < 4; k++){
+                        let dx = randomIntFromInterval(-25, 25);
+                        let dy = randomIntFromInterval(-20, 20);
+                        let radius = 5;
+                        particles.push(new Particle(enemies4[i].x,enemies4[i].y,radius,dx,dy,"red"))
+                    }
+                    enemies4.splice(i,1);
+                    projectileBalls.splice(j,1);
                 }
-                enemies4.splice(i,1);
-                projectileBalls.splice(j,1);
+            }
+        }
+    }
+    // Ok, so let's do collision detection between player and lives : 
+    for(let i = 0; i < livesArr.length; i++){
+        if(livesArr[i] != undefined){
+            if(CollisionDetectionofSquareAndCircle(livesArr[i].x,livesArr[i].y,livesArr[i].radius,player.x,player.y,player.width,player.height)){
+                livesArr.splice(i,1);
+                lives++
+            }   
+        }
+    }
+    // Collision Detection between our player and bomb : 
+    for(let i = 0; i < bombs.length; i++){
+        if(bombs[i] != undefined){
+            if(CollisionDetectionofSquareAndCircle(bombs[i].x,bombs[i].y,bombs[i].radius,player.x,player.y,player.width,player.height)){
+                for(let j = 0 ; j < 8; j++){
+                    makeExplosionWithoutParticles(player.x,player.y);
+                }
+                bombs.splice(i,1)
+                lives--
             }
         }
     }
 }
+// Collision Detection function for circle and rectangle : 
 function CollisionDetectionofSquareAndCircle(cx, cy, rad, rx, ry, rw, rh){
     let testX = cx;
     let testY = cy;
@@ -1067,9 +1243,10 @@ function CollisionDetectionofSquareAndCircle(cx, cy, rad, rx, ry, rw, rh){
     return false;
 }
 // Defining all of our level2 class instances here : 
-let bomb = new Bomb(640,100,10,10,3);
 // The concept for level 2 of the game is here:
-// So, in this level our player     
+// So, in this level our player  
+let tile5 = new Tile(randomIntFromInterval(100, innerWidth - 100),randomIntFromInterval(200,innerHeight - 50),0,randomIntFromInterval(90, 180),30,randomIntFromInterval(0,255),randomIntFromInterval(0,255),randomIntFromInterval(0,255))
+tiles.push(tile5)
 function Level2(){
     // Let's make level 2 right here :
     textAlign(CENTER);
@@ -1077,6 +1254,22 @@ function Level2(){
     // fill("red")
     // text("Level 2",width/2,height/2);
     player.spawn();
+    // Throwing life : 
+    for(let i = 0; i < livesArr.length; i++){
+        livesArr[i].bless();
+    }
+    // Throwing bombs : 
+    for(let i = 0; i < bombs.length; i++){
+        bombs[i].explode();
+        if(bombs[i] != undefined){
+            if(bombs[i].y >= innerHeight - 20){
+                for(let j = 0; j < 5; j++){
+                    makeExplosionWithoutParticles(bombs[i].x,bombs[i].y)
+                }
+                bombs.splice(i,1)
+            }
+        }
+    }
     // bomb.explode();
     for(let i = 0; i < enemies4.length; i++){
         enemies4[i].attack();
@@ -1125,6 +1318,9 @@ function Level2(){
             projectileBalls[i].shoot();
         }
     }
+    if(score >= 55){
+        currentScene = GAME_LEVEL3;
+    }
     // Going to the next level here : 
     // if(monsterlives <= 0){
     //     enemies3.splice(0,1)
@@ -1133,10 +1329,25 @@ function Level2(){
     // The main logic comes here :
 }
 setInterval(()=>{
-    let enemy4x = 1000;
-    let enemy4y = 100;
-    let angle = atan2(player.y - enemy4y, player.x - enemy4x);
-    let dx = Math.cos(angle) * Ghost_Speed;
-    let dy = Math.sin(angle) * Ghost_Speed;
-    enemies4.push(new Enemy4(1000,100,40,40,dx,dy));
-},10000)
+    Ghost_Speed += 0.01
+    if(currentScene == GAME_LEVEL2){
+        let enemy4x = 1000;
+        let enemy4y = 100;
+        let angle = atan2(player.y - enemy4y, player.x - enemy4x);
+        let dx = Math.cos(angle) * Ghost_Speed;
+        let dy = Math.sin(angle) * Ghost_Speed;
+        enemies4.push(new Enemy4(1100,randomIntFromInterval(-20 , 900),40,40,dx,dy));
+    }
+},3000)
+let done = true;
+setInterval(()=>{
+    if(currentScene == GAME_LEVEL2 && done){
+        livesArr.push(new Life(randomIntFromInterval(50, innerWidth - 50),0,0.6,4,17));
+        done = false;
+    }
+},14000)
+setInterval(()=>{
+    if(currentScene == GAME_LEVEL2){
+            bombs.push(new Bomb(randomIntFromInterval(100,700),100,13,13,1))
+    }
+},5000)
