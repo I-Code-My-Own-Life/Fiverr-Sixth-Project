@@ -2,7 +2,7 @@
 // Game Concept : 
 // This game is going to be 
 // Our current scene is here : 
-let currentScene = 0;
+let currentScene = 7;
 // Our scenes : 
 let LOADING = 0;
 let MENU = 1
@@ -39,6 +39,8 @@ let enemies = [];
 let enemies2 = [];
 let enemies3 = [];
 let enemies4 = [];
+let enemies5 = [];
+let enemies6 = [];
 let livesArr = [];
 let bombs = [];
 let projectileBalls = [];
@@ -206,11 +208,6 @@ function draw(){
 // Some Utility Functions : 
 function randomIntFromInterval(min, max) { // min and max included 
     return Math.floor(Math.random() * (max - min + 1) + min)
-}
-function Level3(){
-    textSize(35);
-    textAlign(CENTER);
-    text("Level 3 here",width/2,height/2)
 }
 // Variables related to our loading scene are here :
 let sizeofcircle = 5; 
@@ -527,6 +524,10 @@ class Player{
         if(this.x < 40 && !keys.arrowRight.pressed){
             this.dx = 0;
         }
+        // Stopping the player from going off the screen form the right side :
+        if(this.x + this.width + 40 > innerWidth && !keys.arrowLeft.pressed){
+            this.dx = 0;
+        }
         this.y += this.dy;
         this.x += this.dx;
         if(this.y + this.height + this.dy <= innerHeight){
@@ -567,6 +568,7 @@ function makeExplosionWithoutParticles(x,y){
 }
 let alpha = 0.1;
 let incrementinalpha = 0.01
+let ang1 = 0;
 class Enemy{
     constructor(x,y,width,height,dx,dy,hit){
         this.x = x;
@@ -576,6 +578,7 @@ class Enemy{
         this.dx = dx;
         this.dy = dy;
         this.hit = hit;
+        this.curve =  randomIntFromInterval(2, 5)
     }
     attack(){
         // fill('red');
@@ -586,13 +589,11 @@ class Enemy{
         text("Spirit",this.x + 25,this.y - 10);
         noFill();
         stroke(150);
-        // stroke(`rgba(120,200,160,${alpha})`);
-        // alpha = sin(incrementinalpha) + 0.1;
-        // console.log(alpha + 0.1)
-        // incrementinalpha++
         drawingContext.shadowBlur = 32;
         rect(this.x,this.y,this.width,this.height);
         this.x += this.dx;
+        this.y += Math.sin(ang1) * this.curve
+        ang1 += 0.05;
     }
 }
 let ra = 0.1
@@ -761,7 +762,7 @@ function KeyboardInputHandler(){
                         fire = true;
                         projectiles.push(new Projectile(player.x + player.width ,player.y + (player.height / 2) - 25,20,20,18,18,1));
                     }
-                    if(currentScene == GAME_LEVEL2){
+                    if(currentScene == GAME_LEVEL2 || currentScene == GAME_LEVEL3 ){
                         projectileBalls.push(new ProjectileBall(player.x + player.width,player.y + (player.height / 2) - 25,12,18,0))
                     }
                     break;
@@ -769,7 +770,7 @@ function KeyboardInputHandler(){
                     if(currentScene == GAME){
                         projectiles2.push(new Projectile2(player.x + (player.width / 2),player.y,20,20,true,0,-18))
                     }
-                    if(currentScene == GAME_LEVEL2){
+                    if(currentScene == GAME_LEVEL2 || currentScene == GAME_LEVEL3){
                         projectileBalls.push(new ProjectileBall(player.x + (player.width/ 2), player.y,12,0,-18))
                     }
                         break;
@@ -972,11 +973,6 @@ function CollisionDetection(){
         }
     // All the collisions related to our big enemy : 
     // Collision Detection between our player and our enemy :
-    // if(enemy3 != undefined){
-    //     if(dist(player.x,player.y,enemy3.x,enemy3.y) < 50){
-    //         lives--
-    //     }
-    // }
     // Collision Detection between our player's projectile and our big enemy :
     for(let i = 0; i < projectiles.length; i++){
         if(enemy3 != undefined && projectiles[i] != undefined){
@@ -1026,14 +1022,14 @@ setInterval(()=>{
         else{
             // dx = randomIntFromInterval(2,6);
         }
-        let y = randomIntFromInterval(90 , innerHeight - 50);
+        let y = randomIntFromInterval(90 , innerHeight - 100);
         enemies.push(new Enemy(x, y,50,50,dx,0,false));
     }
 },2000);
 
 // Going to the GAME scene after some time : 
 setTimeout(()=>{
-    currentScene = MENU
+    // currentScene = MENU
 },timeForLoading)
 
 setInterval(()=>{
@@ -1059,7 +1055,7 @@ setInterval(()=>{
 },3000)
 // Everything for level 2 will be here : 
 // Variables : 
-let Ghost_Speed = 3;
+let Ghost_Speed = 4.2;
 // Functions and classes for level 2 are here : 
 // All the enemeis for level 2 : 
 // Programming the enemy class here : 
@@ -1318,7 +1314,7 @@ function Level2(){
             projectileBalls[i].shoot();
         }
     }
-    if(score >= 55){
+    if(score >= 75){
         currentScene = GAME_LEVEL3;
     }
     // Going to the next level here : 
@@ -1351,3 +1347,118 @@ setInterval(()=>{
             bombs.push(new Bomb(randomIntFromInterval(100,700),100,13,13,1))
     }
 },5000)
+// All of our classes and functions of Level 3 are going to be here :
+class Enemy5{
+    constructor(x,y,width,height,dx,dy){
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.dx = dx;
+        this.dy = dy;
+    }
+    attack(){
+        fill("red")
+        textAlign(CENTER);
+        textSize(20);
+        text("Enemy",this.x + this.width / 2,this.y - 15)
+        rect(this.x,this.y,this.width,this.height);
+        this.x += this.dx;
+        this.y += this.dy
+        if(this.y + this.height + this.dy  <= innerHeight){
+            this.dy += GRAVITY;
+        }
+        else{
+            this.dy = 0;
+        }
+    }
+}
+// Another enemy class is here : 
+class Enemy6{
+    constructor(x,y,width,height,dx,dy){
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.dx = dx;
+        this.dy = dy;
+    }
+    attack(){
+        fill("red")
+        textAlign(CENTER)
+        textSize(20);
+        drawingContext.shadowBlur = 0;
+        text("Ghost",this.x + this.width/2,this.y - 10)
+        fill("green");
+        rect(this.x,this.y,this.width,this.height);
+        this.x += this.dx;
+        this.y += this.dy;
+        if(this.y + this.height + this.dy <= innerHeight){
+            this.dy += GRAVITY;
+        }
+        else{
+            this.dy = 0;
+        }
+    }
+}
+let enemy6 = new Enemy6(900,200,50,50,0,10)
+enemies6.push(enemy6)
+let alp = 1;
+// Defining our Level 3 here : 
+function Level3(){
+    // Making our enemy attack the player here : 
+    for(let i = 0; i < enemies5.length; i++){
+        enemies5[i].attack();
+    }
+    for(let i = 0; i < enemies6.length; i++){
+        enemies6[i].attack();
+    }
+    if(alp >= 0.02){
+        alp -= 0.01
+    }
+    fill(`rgba(255,0,0,${alp})`);
+    textSize(35);
+    textAlign(CENTER);
+    text("Level 3 here",width/2,height/2);
+    // Let's start making our Level 3 here : 
+    // First, let's spawn the player : 
+    player.spawn();
+    // Displaying score and lives here :
+    DisplayScoreandLives();
+    // Handling some keyboard movement here :
+    if (keys.arrowRight.pressed) {  
+        player.dx = SPEED;
+    }
+    else if (keys.arrowLeft.pressed) {
+        player.dx = -SPEED;
+    }
+    else{
+        player.dx = 0;
+    } 
+    // When lives get less than zero then go to the gameover scene : 
+    if(lives <= 0){
+        currentScene = GAMEOVER;
+        console.log("Go to game over scene!")
+        setTimeout(()=>{
+            if(lives == 0){
+                location.reload()
+            }
+        },3000)
+    }
+    // Shooting projectiles :
+    for(let i = 0; i < projectileBalls.length; i++){
+        if(projectileBalls[i].x > innerWidth || projectileBalls[i].x < 0){
+            projectileBalls.splice(i,1);
+        }
+        if(projectileBalls[i] != undefined){
+            projectileBalls[i].shoot();
+        }
+    }
+}
+setInterval(()=>{
+    let dx = randomIntFromInterval(-1,-3);
+    // enemies5.push(new Enemy5(900,200,30,60,dx,1))
+    for(let i = 0; i < enemies5.length; i++){
+        enemies5[i].dy -= randomIntFromInterval(6, 14)
+    }
+},2000)
